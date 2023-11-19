@@ -1,4 +1,7 @@
 fastapi
 uvicorn[standard]
 requests
+sqlalchemy
+
+# dev-only
 ipykernel
