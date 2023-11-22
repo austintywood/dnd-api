@@ -10,7 +10,7 @@ def get_user(
 ) -> schemas.User:
     return db.query(models.User).filter(models.User.id == user_id).first()
 
-def get_user_from_params(
+def get_users(
     db: Session,
     email: str | None = None,
     skip: int = 0,
@@ -23,11 +23,6 @@ def get_user_from_params(
 
     db_users = query.offset(skip).limit(limit).all()
     return db_users
-
-def get_users(
-    db: Session, skip: int=0, limit: int=100
-) -> list[schemas.User]:
-    return db.query(models.User).offset(skip).limit(limit).all()
 
 def create_user(
     db: Session, user: schemas.User
@@ -61,15 +56,24 @@ def delete_user(
     return db_user
 
 def get_characters(
-    db: Session, skip: int=0, limit: int=100
+    db: Session,
+    name: str | None = None,
+    age: int | None = None,
+    skip: int=0,
+    limit: int=100,
 ) -> List[schemas.Character]:
-    return db.query(models.Character).offset(skip).limit(limit)
+    query = db.query(models.Character)
+    if name:
+        query = query.filter(models.Character.name == name)
+    if age:
+        query = query.filter(models.Character.age == age)
+
+    return query.offset(skip).limit(limit).all()
 
 def get_character(
     db: Session, character: schemas.Character
 ) -> schemas.Character:
     return (
-        db
-        .query(models.Character)
+        db.query(models.Character)
         .filter(models.Character.id == character.id)
     )

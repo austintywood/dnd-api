@@ -44,9 +44,7 @@ def read_users(
     limit: int = 100,
     db: Session = Depends(get_db)
 ) -> list[schemas.User]:
-    db_users = crud.get_user_from_params(
-        db=db, email=email, skip=skip, limit=limit
-    )
+    db_users = crud.get_users(db=db, email=email, skip=skip, limit=limit)
     return db_users
 
 @app.get(path='/users/{user_id}', response_model=schemas.User)
@@ -83,8 +81,15 @@ def create_character(
         raise e
     return db_character
 
-@app.get(path='/characters/')
-def read_character_class(
-    character_class_name: schemas.CharacterClassName | None = None,
-) -> schemas.CharacterClassName:
-    return character_class_name
+@app.get(path='/characters/', response_model=list[schemas.Character])
+def read_characters(
+    name: str | None = None,
+    age: int | None = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+) -> list[schemas.Character]:
+    db_characters = crud.get_characters(
+        db=db, name=name, age=age, skip=skip, limit=limit,
+    )
+    return db_characters
