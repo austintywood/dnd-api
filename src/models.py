@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Enum
 from sqlalchemy.orm import relationship
 
 from .database import Base
-from .schemas import CharacterClassName, Race
+from .schemas import CharacterClassName, Race, Sex
 
 
 class User(Base):
@@ -21,6 +21,7 @@ class Character(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True)
     age = Column(Integer, nullable=True)
+    sex = Column(Enum(Sex), nullable=True)
     race = Column(Enum(Race))
     owner_id = Column(Integer, ForeignKey('users.id'))
 

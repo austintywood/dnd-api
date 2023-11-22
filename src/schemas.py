@@ -57,6 +57,13 @@ class Race(str, Enum):
     class Config():
         from_attributes = True
 
+class Sex(str, Enum):
+    male = 'male'
+    female = 'female'
+
+    class Config():
+        from_attributes = True
+
 class CharacterBase(BaseModel):
     name: str
     age: int | None = None

@@ -9,3 +9,6 @@ __pycache__
 
 # Development directory for testing
 .dev
+
+*.test.json
+*.test.py
