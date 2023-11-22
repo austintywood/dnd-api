@@ -49,6 +49,9 @@ class CharacterBase(BaseModel):
 class CharacterCreate(CharacterBase):
     pass
 
+class CharacterUpdate(CharacterBase):
+    pass
+
 class Character(CharacterBase):
     id: int
     age: int | None = None

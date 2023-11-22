@@ -78,3 +78,16 @@ def get_character(
         .filter(models.Character.id == character_id)
         .first()
     )
+
+def update_character(
+    db: Session,
+    db_character: models.Character,
+    character_update: dict,
+) -> schemas.Character:
+    for k, v in character_update.items():
+        setattr(db_character, k, v)
+
+    db.commit()
+    db.refresh(db_character)
+
+    return db_character

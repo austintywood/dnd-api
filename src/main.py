@@ -113,3 +113,19 @@ def read_character(
         )
     print('test')
     return db_character
+
+@app.put(path='/characters/{character_id}', response_model=schemas.Character)
+def update_character(
+    character_id: int,
+    character_update: dict,
+    db: Session = Depends(get_db)
+) -> schemas.Character:
+    db_character = crud.get_character(db=db, character_id=character_id)
+    if not db_character:
+        raise HTTPException(
+            status_code=404,
+            detail='Charater not found'
+        )
+
+    db_character = crud.update_character(db, db_character, character_update)
+    return db_character
