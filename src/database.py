@@ -15,7 +15,7 @@ db_url = URL.create(
     port=os.getenv('DATABASE_PORT'),
     database=os.getenv('DATABASE_NAME'),
 )
-engine = create_engine(db_url, echo=True)
+engine = create_engine(db_url)
 
 SessionLocal: Session = sessionmaker(
     autocommit=False, autoflush=False, bind=engine

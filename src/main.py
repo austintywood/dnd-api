@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Depends
+from typing import Annotated
+from fastapi import FastAPI, HTTPException, Depends, Query
 from sqlalchemy.exc import IntegrityError, DataError
 from sqlalchemy.orm import Session
 
@@ -37,15 +38,15 @@ def create_user(
 
     return db_user
 
-@app.get(path='/users/', response_model=list[schemas.User])
+@app.get(path='/users/', response_model=dict[str, list[schemas.User]])
 def read_users(
     email: str | None = None,
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db)
-) -> list[schemas.User]:
+) -> dict[str, list[schemas.User]]:
     db_users = crud.get_users(db=db, email=email, skip=skip, limit=limit)
-    return db_users
+    return {'users': db_users}
 
 @app.get(path='/users/{user_id}', response_model=schemas.User)
 def read_user(user_id: int, db: Session=Depends(get_db)) -> schemas.User:
@@ -87,24 +88,25 @@ def create_character(
         raise e
     return db_character
 
-@app.get(path='/characters/', response_model=list[schemas.Character])
+@app.get(
+    path='/characters/',
+    response_model=dict[str, list[schemas.Character]],
+)
 def read_characters(
-    name: str | None = None,
-    age: int | None = None,
-    race: str | None = None,
-    skip: int = 0,
-    limit: int = 100,
+    name: str | None = Query(None, alias='name'),
+    race: schemas.Race | None = Query(None, alias='race'),
+    skip: int = Query(0, alias='skip'),
+    limit: int = Query(100, alias='limit'),
     db: Session = Depends(get_db),
-) -> list[schemas.Character]:
+) -> dict[str, list[schemas.Character]]:
     db_characters = crud.get_characters(
         db=db,
         name=name,
-        age=age,
-        skip=skip,
         race=race,
+        skip=skip,
         limit=limit,
     )
-    return db_characters
+    return {'characters': db_characters}
 
 @app.get(path='/characters/{character_id}', response_model=schemas.Character)
 def read_character(
@@ -145,3 +147,21 @@ def update_character(
         raise e
 
     return db_character
+
+@app.delete(
+    path='/characters/{character_id}',
+    response_model=dict[str, schemas.Character]
+)
+def delete_character(
+    character_id: int,
+    db: Session = Depends(get_db),
+) -> dict[str, schemas.Character]:
+    db_character = crud.get_character(db=db, character_id=character_id)
+    if not db_character:
+        raise HTTPException(
+            status_code=404,
+            detail='Character not found.'
+        )
+
+    crud.delete_character(db=db, db_character=db_character)
+    return {'deleted': db_character}

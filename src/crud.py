@@ -57,16 +57,13 @@ def delete_user(
 def get_characters(
     db: Session,
     name: str | None = None,
-    age: int | None = None,
     race: str | None = None,
-    skip: int=0,
-    limit: int=100,
+    skip: int = 0,
+    limit: int = 100,
 ) -> list[schemas.Character]:
     query = db.query(models.Character)
     if name:
         query = query.filter(models.Character.name == name)
-    if age:
-        query = query.filter(models.Character.age == age)
     if race:
         query = query.filter(models.Character.race == race)
 
@@ -93,6 +90,20 @@ def update_character(
         db.commit()
         db.refresh(db_character)
     except Exception as e:
+        raise e
+
+    return db_character
+
+def delete_character(
+    db: Session,
+    db_character: models.Character,
+) -> schemas.Character:
+
+    try:
+        db.delete(db_character)
+        db.commit()
+    except Exception as e:
+        db.rollback()
         raise e
 
     return db_character
