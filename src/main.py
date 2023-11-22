@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, Depends, Query
-from sqlalchemy.exc import IntegrityError
+from fastapi import FastAPI, HTTPException, Depends
+from sqlalchemy.exc import IntegrityError, DataError
 from sqlalchemy.orm import Session
 
 from .database import SessionLocal, engine
@@ -127,5 +127,16 @@ def update_character(
             detail='Charater not found'
         )
 
-    db_character = crud.update_character(db, db_character, character_update)
+    try:
+        db_character = crud.update_character(
+            db, db_character, character_update
+        )
+    except DataError as e:
+        raise HTTPException(
+            status_code=422,
+            detail='Invalid data input.'
+        )
+    except Exception as e:
+        raise e
+
     return db_character

@@ -43,8 +43,24 @@ class CharacterClass(CharacterClassBase):
     class Config():
         from_attributes = True
 
+class Race(str, Enum):
+    dwarf = 'dwarf'
+    elf = 'elf'
+    halfling = 'halfling'
+    human = 'human'
+    dragonborn = 'dragonborn'
+    gnome = 'gnome'
+    half_elf = 'half_elf'
+    half_orc = 'half_orc'
+    tiefling = 'tiefling'
+
+    class Config():
+        from_attributes = True
+
 class CharacterBase(BaseModel):
     name: str
+    age: int | None = None
+    race: Race | None = None
 
 class CharacterCreate(CharacterBase):
     pass
@@ -54,7 +70,6 @@ class CharacterUpdate(CharacterBase):
 
 class Character(CharacterBase):
     id: int
-    age: int | None = None
     classes: List[CharacterLevel] = []
 
     class Config():

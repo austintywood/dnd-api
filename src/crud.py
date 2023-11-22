@@ -1,4 +1,3 @@
-from typing import List
 from sqlalchemy.orm import Session
 
 from . import models, schemas
@@ -61,7 +60,7 @@ def get_characters(
     age: int | None = None,
     skip: int=0,
     limit: int=100,
-) -> List[schemas.Character]:
+) -> list[schemas.Character]:
     query = db.query(models.Character)
     if name:
         query = query.filter(models.Character.name == name)
@@ -87,7 +86,10 @@ def update_character(
     for k, v in character_update.items():
         setattr(db_character, k, v)
 
-    db.commit()
-    db.refresh(db_character)
+    try:
+        db.commit()
+        db.refresh(db_character)
+    except Exception as e:
+        raise e
 
     return db_character
