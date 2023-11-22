@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Query
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .database import SessionLocal, engine
@@ -26,16 +27,26 @@ async def root():
 def create_user(
     user: schemas.UserCreate, db: Session=Depends(get_db)
 ) -> schemas.User:
-    db_user = crud.get_user_by_email(db=db, email=user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail='Email already registered')
-    return crud.create_user(db=db, user=user)
+    try:
+        db_user = crud.create_user(db=db, user=user)
+    except IntegrityError as e:
+        raise HTTPException(
+            status_code=400,
+            detail='Email already registered',
+        )
+
+    return db_user
 
 @app.get(path='/users/', response_model=list[schemas.User])
 def read_users(
-    skip: int=0, limit: int=100, db: Session=Depends(get_db)
+    email: str | None = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
 ) -> list[schemas.User]:
-    db_users = crud.get_users(db=db, skip=skip, limit=limit)
+    db_users = crud.get_user_from_params(
+        db=db, email=email, skip=skip, limit=limit
+    )
     return db_users
 
 @app.get(path='/users/{user_id}', response_model=schemas.User)

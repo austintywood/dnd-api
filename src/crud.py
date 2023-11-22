@@ -5,14 +5,24 @@ from . import models, schemas
 
 
 def get_user(
-    db: Session, user_id: int
+    db: Session,
+    user_id: int,
 ) -> schemas.User:
     return db.query(models.User).filter(models.User.id == user_id).first()
 
-def get_user_by_email(
-    db: Session, email: str
-) -> schemas.User:
-    return db.query(models.User).filter(models.User.email == email).first()
+def get_user_from_params(
+    db: Session,
+    email: str | None = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> list[schemas.User]:
+    query = db.query(models.User)
+
+    if email:
+        query = query.filter(models.User.email == email)
+
+    db_users = query.offset(skip).limit(limit).all()
+    return db_users
 
 def get_users(
     db: Session, skip: int=0, limit: int=100
