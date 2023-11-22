@@ -58,6 +58,7 @@ def get_characters(
     db: Session,
     name: str | None = None,
     age: int | None = None,
+    race: str | None = None,
     skip: int=0,
     limit: int=100,
 ) -> list[schemas.Character]:
@@ -66,6 +67,8 @@ def get_characters(
         query = query.filter(models.Character.name == name)
     if age:
         query = query.filter(models.Character.age == age)
+    if race:
+        query = query.filter(models.Character.race == race)
 
     return query.offset(skip).limit(limit).all()
 

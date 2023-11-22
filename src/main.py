@@ -91,12 +91,18 @@ def create_character(
 def read_characters(
     name: str | None = None,
     age: int | None = None,
+    race: str | None = None,
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
 ) -> list[schemas.Character]:
     db_characters = crud.get_characters(
-        db=db, name=name, age=age, skip=skip, limit=limit,
+        db=db,
+        name=name,
+        age=age,
+        skip=skip,
+        race=race,
+        limit=limit,
     )
     return db_characters
 
@@ -111,7 +117,6 @@ def read_character(
             status_code=404,
             detail='Character not found',
         )
-    print('test')
     return db_character
 
 @app.put(path='/characters/{character_id}', response_model=schemas.Character)
