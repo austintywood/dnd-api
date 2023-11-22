@@ -70,12 +70,18 @@ def delete_user(user_id: int, db: Session=Depends(get_db)) -> schemas.User:
 @app.post('/characters/', response_model=schemas.Character)
 def create_character(
     character: schemas.CharacterCreate, db: Session = Depends(get_db)
-):
+) -> schemas.Character:
     db_character = models.Character(**character.model_dump())
     try:
         db.add(db_character)
         db.commit()
         db.refresh(db_character)
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail='Character name is taken'
+        )
     except Exception as e:
         db.rollback()
         raise e
@@ -93,3 +99,17 @@ def read_characters(
         db=db, name=name, age=age, skip=skip, limit=limit,
     )
     return db_characters
+
+@app.get(path='/characters/{character_id}', response_model=schemas.Character)
+def read_character(
+    character_id: int,
+    db: Session=Depends(get_db)
+) -> schemas.Character:
+    db_character = crud.get_character(db=db, character_id=character_id)
+    if not db_character:
+        raise HTTPException(
+            status_code=404,
+            detail='Character not found',
+        )
+    print('test')
+    return db_character

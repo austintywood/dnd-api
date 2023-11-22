@@ -71,9 +71,10 @@ def get_characters(
     return query.offset(skip).limit(limit).all()
 
 def get_character(
-    db: Session, character: schemas.Character
+    db: Session, character_id: int
 ) -> schemas.Character:
     return (
         db.query(models.Character)
-        .filter(models.Character.id == character.id)
+        .filter(models.Character.id == character_id)
+        .first()
     )

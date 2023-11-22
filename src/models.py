@@ -19,7 +19,7 @@ class Character(Base):
     __tablename__ = 'characters'
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
+    name = Column(String, unique=True)
     age = Column(Integer, nullable=True)
     owner_id = Column(Integer, ForeignKey('users.id'))
 
