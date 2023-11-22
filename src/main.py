@@ -1,14 +1,16 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from sqlalchemy.orm import Session
 
 from .database import SessionLocal, engine
 from . import schemas, crud, models
 
 
+# models.Base.metadata.drop_all(bind=engine)
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
+# Dependency to get to the database session
 def get_db():
     db = SessionLocal()
     try:
@@ -55,3 +57,23 @@ def delete_user(user_id: int, db: Session=Depends(get_db)) -> schemas.User:
         db.rollback()
         raise e
     return db_user
+
+@app.post('/characters/', response_model=schemas.Character)
+def create_character(
+    character: schemas.CharacterCreate, db: Session = Depends(get_db)
+):
+    db_character = models.Character(**character.model_dump())
+    try:
+        db.add(db_character)
+        db.commit()
+        db.refresh(db_character)
+    except Exception as e:
+        db.rollback()
+        raise e
+    return db_character
+
+@app.get(path='/characters/')
+def read_character_class(
+    character_class_name: schemas.CharacterClassName | None = None,
+) -> schemas.CharacterClassName:
+    return character_class_name

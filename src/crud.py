@@ -1,18 +1,27 @@
+from typing import List
 from sqlalchemy.orm import Session
 
 from . import models, schemas
 
 
-def get_user(db: Session, user_id: int) -> schemas.User:
+def get_user(
+    db: Session, user_id: int
+) -> schemas.User:
     return db.query(models.User).filter(models.User.id == user_id).first()
 
-def get_user_by_email(db: Session, email: str) -> schemas.User:
+def get_user_by_email(
+    db: Session, email: str
+) -> schemas.User:
     return db.query(models.User).filter(models.User.email == email).first()
 
-def get_users(db: Session, skip: int=0, limit: int=100) -> list[schemas.User]:
+def get_users(
+    db: Session, skip: int=0, limit: int=100
+) -> list[schemas.User]:
     return db.query(models.User).offset(skip).limit(limit).all()
 
-def create_user(db: Session, user: schemas.User) -> schemas.User:
+def create_user(
+    db: Session, user: schemas.User
+) -> schemas.User:
     fake_hashed_password = f"{user.password}not_really_hashed"
     db_user = models.User(
         email=user.email,
@@ -28,7 +37,9 @@ def create_user(db: Session, user: schemas.User) -> schemas.User:
     db.refresh(db_user)
     return db_user
 
-def delete_user(db: Session, user_id: int) -> schemas.User:
+def delete_user(
+    db: Session, user_id: int
+) -> schemas.User:
     db_user = get_user(db, user_id=user_id)
     try:
         db.delete(db_user)
@@ -38,3 +49,17 @@ def delete_user(db: Session, user_id: int) -> schemas.User:
         raise e
 
     return db_user
+
+def get_characters(
+    db: Session, skip: int=0, limit: int=100
+) -> List[schemas.Character]:
+    return db.query(models.Character).offset(skip).limit(limit)
+
+def get_character(
+    db: Session, character: schemas.Character
+) -> schemas.Character:
+    return (
+        db
+        .query(models.Character)
+        .filter(models.Character.id == character.id)
+    )
